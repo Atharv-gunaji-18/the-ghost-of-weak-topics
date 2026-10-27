@@ -1,0 +1,567 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>The Ghost of Weak Topics 👻 | AI Learning Assistant</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <!-- Background Spectral Glow & Particles -->
+    <div class="ambient-glow glow-1"></div>
+    <div class="ambient-glow glow-2"></div>
+    <div class="ambient-glow glow-3"></div>
+
+    <!-- Top Navigation Bar -->
+    <header class="navbar">
+        <div class="nav-container">
+            <div class="nav-brand" onclick="navigate('home')">
+                <span class="ghost-mascot-icon">👻</span>
+                <span class="brand-title">The Ghost of <span class="gradient-text">Weak Topics</span></span>
+            </div>
+
+            <nav class="nav-links">
+                <button class="nav-btn active" data-view="home" onclick="navigate('home')">🏠 Home</button>
+                <button class="nav-btn" data-view="chat" onclick="navigate('chat')">👻 Ghost Chat</button>
+                <button class="nav-btn" data-view="quiz" onclick="navigate('quiz')">📝 Adaptive Quiz</button>
+                <button class="nav-btn" data-view="weak-topics" onclick="navigate('weak-topics')">🔍 Weak Topics</button>
+                <button class="nav-btn" data-view="revision" onclick="navigate('revision')">📅 Revision Planner</button>
+                <button class="nav-btn" data-view="dashboard" onclick="navigate('dashboard')">📊 Dashboard</button>
+            </nav>
+
+            <div class="nav-actions">
+                <div class="model-status-pill" id="modelStatusPill" title="Gemma 4 Backend Status">
+                    <span class="status-dot pulsing"></span>
+                    <span class="status-label" id="modelStatusText">Checking Gemma 4...</span>
+                </div>
+                <div class="student-pill" onclick="openStudentModal()" title="Switch or edit scholar profile">
+                    <span class="avatar-icon">🧑‍🎓</span>
+                    <span id="navStudentName">Alex</span>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Sub-header Gemma 4 Setup Banner (Conditional) -->
+    <div id="gemmaNoticeBanner" class="gemma-notice-banner hidden">
+        <div class="banner-content">
+            <span class="banner-icon">🔮</span>
+            <div class="banner-text">
+                <strong id="bannerTitle">Gemma 4 Setup Guide</strong>
+                <span id="bannerMsg">Ollama is offline or Gemma 4 model is not downloaded.</span>
+            </div>
+            <code id="bannerCmd" class="banner-code">ollama pull gemma4:e2b</code>
+            <button class="banner-close" onclick="dismissBanner()">✕</button>
+        </div>
+    </div>
+
+    <!-- Main Container Views -->
+    <main class="main-content">
+
+        <!-- ================================================= -->
+        <!-- VIEW 1: HOME -->
+        <!-- ================================================= -->
+        <section id="view-home" class="view-panel active">
+            <div class="hero-section">
+                <div class="hero-text-col">
+                    <div class="ghost-badge">AI-POWERED EDUCATIONAL TUTOR</div>
+                    <h1 class="hero-title">
+                        Conquer Your Knowledge Gaps With <span class="gradient-text">The Ghost Tutor</span> 👻
+                    </h1>
+                    <p class="hero-sub">
+                        Students repeat the same mistakes when misconceptions stay in the dark.
+                        Powered by <strong>Gemma 4</strong>, our spectral assistant tracks quiz answers,
+                        identifies weak topics, and generates personalized revision sessions.
+                    </p>
+                    <div class="hero-cta-group">
+                        <button class="btn btn-primary" onclick="navigate('quiz')">⚡ Launch Adaptive Quiz</button>
+                        <button class="btn btn-secondary" onclick="navigate('chat')">💬 Converse with Ghost</button>
+                        <button class="btn btn-outline" onclick="navigate('revision')">📅 Start Revision</button>
+                    </div>
+                </div>
+
+                <div class="hero-graphic-col">
+                    <div class="floating-ghost-card">
+                        <div class="ghost-mascot-large">👻</div>
+                        <div class="speech-bubble">
+                            "Boo! Fear not the complex topics. We shall banish your confusion together!"
+                        </div>
+                        <div class="ghost-pulse-ring"></div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quick Pulse KPI Cards -->
+            <div class="kpi-grid">
+                <div class="kpi-card">
+                    <span class="kpi-icon">🎯</span>
+                    <div class="kpi-data">
+                        <span class="kpi-value" id="kpiQuizzes">0</span>
+                        <span class="kpi-label">Quizzes Completed</span>
+                    </div>
+                </div>
+                <div class="kpi-card">
+                    <span class="kpi-icon">📈</span>
+                    <div class="kpi-data">
+                        <span class="kpi-value" id="kpiAccuracy">0%</span>
+                        <span class="kpi-label">Overall Accuracy</span>
+                    </div>
+                </div>
+                <div class="kpi-card highlight-weak">
+                    <span class="kpi-icon">🔴</span>
+                    <div class="kpi-data">
+                        <span class="kpi-value" id="kpiWeak">0</span>
+                        <span class="kpi-label">Weak Topics (&lt;50%)</span>
+                    </div>
+                </div>
+                <div class="kpi-card highlight-strong">
+                    <span class="kpi-icon">🟢</span>
+                    <div class="kpi-data">
+                        <span class="kpi-value" id="kpiStrong">0</span>
+                        <span class="kpi-label">Mastered Topics (&ge;75%)</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Pedagogical Rule Banner -->
+            <div class="rules-card">
+                <h3>📜 Ghostly Topic Calibration Rules</h3>
+                <div class="rules-row">
+                    <div class="rule-chip chip-weak">🔴 <strong>&lt; 50% Accuracy:</strong> Needs attention</div>
+                    <div class="rule-chip chip-improving">🟡 <strong>50–74% Accuracy:</strong> Improving</div>
+                    <div class="rule-chip chip-strong">🟢 <strong>&ge; 75% Accuracy:</strong> Strong</div>
+                    <div class="rule-chip chip-nodata">⚪ <strong>&lt; 3 Attempts:</strong> Not enough data</div>
+                </div>
+                <p class="rules-note">
+                    *Topics require at least three recorded attempts before receiving a reliable classification. Accuracy is computed strictly from recorded database answers.
+                </p>
+            </div>
+        </section>
+
+        <!-- ================================================= -->
+        <!-- VIEW 2: GHOST CHAT -->
+        <!-- ================================================= -->
+        <section id="view-chat" class="view-panel">
+            <div class="section-header">
+                <div>
+                    <h2>👻 Ghost Study Chatbot</h2>
+                    <p class="section-sub">Consult the spectral scholar for intuitive explanations, hints, and mistake breakdowns.</p>
+                </div>
+                <div class="chat-controls">
+                    <select id="chatSubjectSelect" class="form-select">
+                        <option value="General">All Subjects</option>
+                        <option value="Python">Python</option>
+                        <option value="Data Structures & Algorithms">Data Structures & Algorithms</option>
+                        <option value="Mathematics">Mathematics</option>
+                        <option value="Computer Science">Computer Science</option>
+                        <option value="Basic Science">Basic Science</option>
+                    </select>
+                    <button class="btn btn-sm btn-outline" onclick="clearChat()">🗑️ Reset</button>
+                </div>
+            </div>
+
+            <!-- Quick Prompt Invocations -->
+            <div class="quick-chips">
+                <span class="chip-title">Quick Invocations:</span>
+                <button class="chip-btn" onclick="sendQuickPrompt('Explain recursion with a spooky ghost mirror analogy!')">👻 Explain Recursion</button>
+                <button class="chip-btn" onclick="sendQuickPrompt('Give me a subtle hint on when to choose a Hash Map over an Array.')">💡 Hint: Hash Map vs Array</button>
+                <button class="chip-btn" onclick="sendQuickPrompt('In Python, why is a default mutable argument like target=[] dangerous?')">🐛 Why did this bug occur?</button>
+                <button class="chip-btn" onclick="sendQuickPrompt('Explain Newton\'s Third Law using a fun ghostly floating example!')">🍎 Newton's 3rd Law</button>
+            </div>
+
+            <!-- Chat Messages Window -->
+            <div class="chat-window" id="chatWindow">
+                <div class="message-bubble assistant">
+                    <div class="msg-avatar">👻</div>
+                    <div class="msg-content">
+                        <p><strong>Boo! Greetings, scholar!</strong> I am <strong>The Ghost of Weak Topics</strong>.</p>
+                        <p>Ask me anything about <strong>Python, DSA, Mathematics, Computer Science, or Science</strong>. I break difficult concepts into simple, spirited analogies!</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Chat Input Area -->
+            <div class="chat-input-area">
+                <textarea id="chatInput" placeholder="Whisper your question into the spectral mist... (Shift+Enter for new line)" rows="1" onkeydown="handleChatKeyDown(event)"></textarea>
+                <button class="btn btn-primary" id="btnSendChat" onclick="sendChatMessage()">Send 🔮</button>
+            </div>
+        </section>
+
+        <!-- ================================================= -->
+        <!-- VIEW 3: ADAPTIVE QUIZ -->
+        <!-- ================================================= -->
+        <section id="view-quiz" class="view-panel">
+            <div class="section-header">
+                <div>
+                    <h2>📝 Adaptive Ghost Quiz</h2>
+                    <p class="section-sub">Multiple-choice challenges evaluated strictly against objective answer keys.</p>
+                </div>
+            </div>
+
+            <!-- Quiz Setup Form (Shown when no quiz is active) -->
+            <div id="quizSetupCard" class="card card-glass">
+                <h3>Configure Your Challenge</h3>
+                <div class="form-grid">
+                    <div class="form-group">
+                        <label for="quizSubject">Subject:</label>
+                        <select id="quizSubject" class="form-select" onchange="updateQuizTopics()">
+                            <!-- Populated dynamically via JS -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="quizTopic">Topic:</label>
+                        <select id="quizTopic" class="form-select">
+                            <!-- Populated dynamically via JS -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="quizDifficulty">Difficulty:</label>
+                        <select id="quizDifficulty" class="form-select">
+                            <option value="Beginner">Beginner</option>
+                            <option value="Intermediate" selected>Intermediate</option>
+                            <option value="Advanced">Advanced</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="quizCount">Question Count:</label>
+                        <select id="quizCount" class="form-select">
+                            <option value="3">3 Questions (Speed drill)</option>
+                            <option value="5" selected>5 Questions (Standard)</option>
+                            <option value="7">7 Questions (Deep check)</option>
+                        </select>
+                    </div>
+                </div>
+                <div style="margin-top: 1.5rem;">
+                    <button class="btn btn-primary btn-large" onclick="startQuiz()">👻 Summon Quiz Questions</button>
+                </div>
+            </div>
+
+            <!-- Active Quiz Container (Hidden initially) -->
+            <div id="quizActiveContainer" class="hidden">
+                <div class="quiz-status-bar">
+                    <div class="quiz-info-pills">
+                        <span class="pill" id="quizPillSubject">Python</span>
+                        <span class="pill" id="quizPillTopic">Loops & Conditionals</span>
+                        <span class="pill pill-diff" id="quizPillDiff">Intermediate</span>
+                        <span class="pill pill-source" id="quizPillSource">Gemma 4</span>
+                    </div>
+                    <div class="quiz-progress-text" id="quizProgressText">Question 1 of 5</div>
+                </div>
+                <div class="progress-bar-container">
+                    <div class="progress-bar-fill" id="quizProgressBar" style="width: 20%;"></div>
+                </div>
+
+                <!-- Current Question Card -->
+                <div class="card card-glass question-card" id="questionCard">
+                    <h3 class="question-text" id="currentQuestionText">Loading question...</h3>
+
+                    <div class="options-list" id="optionsList">
+                        <!-- Options generated dynamically -->
+                    </div>
+
+                    <!-- Instant Feedback Box (revealed on submit or check) -->
+                    <div id="instantFeedbackBox" class="feedback-box hidden">
+                        <div id="feedbackTitle" class="feedback-title"></div>
+                        <div id="feedbackExplanation" class="feedback-desc"></div>
+                        <div style="margin-top: 0.75rem;">
+                            <button id="btnAskWhy" class="btn btn-sm btn-outline hidden" onclick="askWhyWrong()">👻 Ask Ghost Why I Was Wrong</button>
+                        </div>
+                        <div id="whyWrongResponse" class="why-wrong-box hidden"></div>
+                    </div>
+
+                    <!-- Action Buttons -->
+                    <div class="quiz-actions-bar">
+                        <button class="btn btn-outline" onclick="askHintForCurrentQuestion()">💡 Request Ghost Hint</button>
+                        <div class="actions-right">
+                            <button class="btn btn-outline" id="btnPrevQ" onclick="prevQuestion()" disabled>⬅️ Previous</button>
+                            <button class="btn btn-primary" id="btnNextQ" onclick="nextOrSubmitQuestion()">Next Question ➡️</button>
+                        </div>
+                    </div>
+
+                    <!-- Hint Display Drawer -->
+                    <div id="hintBox" class="hint-box hidden">
+                        <span class="hint-icon">💡</span>
+                        <div id="hintContent">Ghost is formulating a hint...</div>
+                    </div>
+                </div>
+
+                <div style="margin-top: 1rem; text-align: right;">
+                    <button class="btn btn-sm btn-danger-outline" onclick="abandonQuiz()">❌ Abandon Quiz</button>
+                </div>
+            </div>
+
+            <!-- Quiz Result Modal/Card (Hidden initially) -->
+            <div id="quizResultCard" class="card card-glass hidden">
+                <div class="result-header">
+                    <div class="result-badge-icon" id="resultIcon">🏆</div>
+                    <h2 id="resultTitle">Quiz Completed!</h2>
+                    <p class="result-sub" id="resultSubtitle">Accuracy: 80% (4/5 correct)</p>
+                </div>
+
+                <div class="result-summary-grid">
+                    <div class="metric-box">
+                        <span class="metric-val" id="resScore">4 / 5</span>
+                        <span class="metric-lbl">Score</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-val" id="resAccuracy">80%</span>
+                        <span class="metric-lbl">Accuracy</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-val" id="resStatus">🟢 Strong</span>
+                        <span class="metric-lbl">Topic Status</span>
+                    </div>
+                </div>
+
+                <div class="result-breakdown" id="resultQuestionsBreakdown">
+                    <!-- Detailed questions breakdown populated dynamically -->
+                </div>
+
+                <div class="result-actions">
+                    <button class="btn btn-primary" onclick="restartQuizUI()">🔄 Take Another Quiz</button>
+                    <button class="btn btn-secondary" onclick="navigate('weak-topics')">🔍 Inspect Weak Topics</button>
+                    <button class="btn btn-outline" onclick="navigate('revision')">📅 Plan Revision</button>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================= -->
+        <!-- VIEW 4: WEAK TOPICS RADAR -->
+        <!-- ================================================= -->
+        <section id="view-weak-topics" class="view-panel">
+            <div class="section-header">
+                <div>
+                    <h2>🔍 Ghostly Knowledge Gap Radar</h2>
+                    <p class="section-sub">Automated weak topic detection calculated from student attempt logs.</p>
+                </div>
+                <div>
+                    <button class="btn btn-sm btn-outline" onclick="loadWeakTopics()">🔄 Refresh Radar</button>
+                </div>
+            </div>
+
+            <!-- Category Filter Pills -->
+            <div class="filter-pills-bar">
+                <button class="filter-pill active" onclick="filterWeakTopics('all', this)">All Topics (<span id="countAll">0</span>)</button>
+                <button class="filter-pill pill-weak-btn" onclick="filterWeakTopics('weak', this)">🔴 Needs Attention (<span id="countWeak">0</span>)</button>
+                <button class="filter-pill pill-improving-btn" onclick="filterWeakTopics('improving', this)">🟡 Improving (<span id="countImproving">0</span>)</button>
+                <button class="filter-pill pill-strong-btn" onclick="filterWeakTopics('strong', this)">🟢 Strong (<span id="countStrong">0</span>)</button>
+                <button class="filter-pill pill-uncalibrated-btn" onclick="filterWeakTopics('uncalibrated', this)">⚪ Calibrating (&lt;3 attempts) (<span id="countUncalibrated">0</span>)</button>
+            </div>
+
+            <!-- Topic Cards Grid -->
+            <div class="topic-cards-grid" id="topicCardsContainer">
+                <!-- Dynamically injected -->
+            </div>
+
+            <!-- Recent Pitfalls (Mistakes) Section -->
+            <div class="card card-glass" style="margin-top: 2rem;">
+                <h3>🧟 Recent Ghostly Pitfalls (Past Incorrect Answers)</h3>
+                <div id="recentPitfallsContainer">
+                    <p style="color:#94A3B8;">No recent mistakes recorded! Keep practicing.</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================= -->
+        <!-- VIEW 5: REVISION PLANNER -->
+        <!-- ================================================= -->
+        <section id="view-revision" class="view-panel">
+            <div class="section-header">
+                <div>
+                    <h2>📅 Personalized Spectral Revision Planner</h2>
+                    <p class="section-sub">Customized 6-stage revision sessions tailored to your available study time.</p>
+                </div>
+            </div>
+
+            <!-- Planner Configuration -->
+            <div class="card card-glass">
+                <h3>Configure Study Session</h3>
+                <div class="form-grid">
+                    <div class="form-group" style="grid-column: span 2;">
+                        <label for="revTopicSelect">Select Target Topic (Prioritized by weaknesses):</label>
+                        <select id="revTopicSelect" class="form-select">
+                            <!-- Populated with prioritized weak topics -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="revTimeSelect">Available Time:</label>
+                        <select id="revTimeSelect" class="form-select">
+                            <option value="15">15 Minutes (Rapid Blitz)</option>
+                            <option value="30" selected>30 Minutes (Standard Dive)</option>
+                            <option value="45">45 Minutes (Mastery Drill)</option>
+                            <option value="60">60 Minutes (Comprehensive)</option>
+                        </select>
+                    </div>
+                    <div class="form-group" style="display:flex; align-items:flex-end;">
+                        <button class="btn btn-primary" style="width: 100%;" onclick="generateRevisionPlan()">👻 Conjure Revision Plan</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Generated 6-Stage Revision Session Display -->
+            <div id="revisionPlanContainer" class="hidden" style="margin-top: 1.5rem;">
+                <div class="plan-summary-header">
+                    <div>
+                        <h3 id="planTopicHeader">Revision Session: Topic</h3>
+                        <p id="planGoalText" style="color:#A78BFA; margin:0;">Eliminating misconceptions with focused drills.</p>
+                    </div>
+                    <div class="time-badge" id="planTimeBadge">30 Mins</div>
+                </div>
+
+                <!-- 6 Stages Tabs -->
+                <div class="revision-stage-tabs">
+                    <button class="stage-tab active" onclick="switchStage(1, this)">1. Concept 📜</button>
+                    <button class="stage-tab" onclick="switchStage(2, this)">2. Worked Examples 🧪</button>
+                    <button class="stage-tab" onclick="switchStage(3, this)">3. Practice Drills 🎯</button>
+                    <button class="stage-tab" onclick="switchStage(4, this)">4. Mistake Feedback 💡</button>
+                    <button class="stage-tab" onclick="switchStage(5, this)">5. Mini-Quiz 🏁</button>
+                    <button class="stage-tab" onclick="switchStage(6, this)">6. Summary 📈</button>
+                </div>
+
+                <!-- Stage 1: Concept Explanation -->
+                <div class="stage-content active" id="stage-1">
+                    <div class="card card-glass">
+                        <h4 id="stage1Title">Spectral Concept Breakdown</h4>
+                        <div id="stage1Body" class="prose"></div>
+                    </div>
+                </div>
+
+                <!-- Stage 2: Worked Examples -->
+                <div class="stage-content" id="stage-2">
+                    <div id="stage2Examples"></div>
+                </div>
+
+                <!-- Stage 3: Practice Drills -->
+                <div class="stage-content" id="stage-3">
+                    <div id="stage3Drills"></div>
+                </div>
+
+                <!-- Stage 4: Feedback on Mistakes -->
+                <div class="stage-content" id="stage-4">
+                    <div class="card card-glass" id="stage4Feedback"></div>
+                </div>
+
+                <!-- Stage 5: Final Mini-Quiz -->
+                <div class="stage-content" id="stage-5">
+                    <div class="card card-glass">
+                        <h4>🏁 Verification Mini-Quiz (3 Questions)</h4>
+                        <p style="color:#94A3B8;">Test your immediate retention to complete this session.</p>
+                        <div id="stage5Questions"></div>
+                        <div style="margin-top: 1.5rem;">
+                            <button class="btn btn-primary" onclick="submitMiniQuiz()">Submit Mini-Quiz & Log Progress</button>
+                        </div>
+                        <div id="miniQuizScoreBox" class="feedback-box hidden" style="margin-top: 1rem;"></div>
+                    </div>
+                </div>
+
+                <!-- Stage 6: Progress Summary -->
+                <div class="stage-content" id="stage-6">
+                    <div class="card card-glass">
+                        <h4>📈 Session Progress Summary</h4>
+                        <div id="stage6Summary"></div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- ================================================= -->
+        <!-- VIEW 6: PROGRESS DASHBOARD -->
+        <!-- ================================================= -->
+        <section id="view-dashboard" class="view-panel">
+            <div class="section-header">
+                <div>
+                    <h2>📊 Analytics & Progress Dashboard</h2>
+                    <p class="section-sub">Comprehensive visual telemetry of your learning trajectory.</p>
+                </div>
+                <div>
+                    <button class="btn btn-sm btn-outline" onclick="loadDashboard()">🔄 Refresh Telemetry</button>
+                </div>
+            </div>
+
+            <!-- Charts Grid -->
+            <div class="charts-grid">
+                <!-- Chart 1: Topic Accuracy Canvas -->
+                <div class="card card-glass chart-box">
+                    <h3>🎯 Topic-wise Accuracy Telemetry</h3>
+                    <div class="canvas-wrap">
+                        <canvas id="topicBarCanvas" width="600" height="320"></canvas>
+                    </div>
+                </div>
+
+                <!-- Chart 2: Historical Accuracy Trend Canvas -->
+                <div class="card card-glass chart-box">
+                    <h3>📈 Accuracy Progression Over Time</h3>
+                    <div class="canvas-wrap">
+                        <canvas id="trendLineCanvas" width="600" height="320"></canvas>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Quiz Log Table -->
+            <div class="card card-glass" style="margin-top: 2rem;">
+                <h3>📜 Persistent Quiz History Log</h3>
+                <div class="table-wrap">
+                    <table class="data-table" id="quizHistoryTable">
+                        <thead>
+                            <tr>
+                                <th>Date & Time</th>
+                                <th>Subject</th>
+                                <th>Topic</th>
+                                <th>Difficulty</th>
+                                <th>Score</th>
+                                <th>Accuracy</th>
+                            </tr>
+                        </thead>
+                        <tbody id="quizHistoryTbody">
+                            <!-- Dynamically loaded -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Completed Revision History -->
+            <div class="card card-glass" style="margin-top: 2rem;">
+                <h3>📚 Completed Revision Sessions</h3>
+                <div id="revisionLogContainer">
+                    <p style="color:#94A3B8;">No completed revision sessions yet.</p>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Student Profile Switcher Modal -->
+    <div id="studentModal" class="modal-overlay hidden">
+        <div class="modal-card">
+            <div class="modal-header">
+                <h3>👤 Scholar Profile</h3>
+                <button class="modal-close" onclick="closeStudentModal()">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label for="studentSelect">Select Existing Scholar:</label>
+                    <select id="studentSelect" class="form-select" onchange="onStudentSelectChange()">
+                        <!-- Populated via API -->
+                    </select>
+                </div>
+                <div style="text-align: center; margin: 12px 0; color: #94A3B8;">— OR —</div>
+                <div class="form-group">
+                    <label for="newStudentInput">Register New Scholar Name:</label>
+                    <input type="text" id="newStudentInput" class="form-input" placeholder="e.g. Maya or Liam">
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-outline" onclick="closeStudentModal()">Cancel</button>
+                <button class="btn btn-primary" onclick="saveStudentProfile()">Switch / Register</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast Notification Container -->
+    <div id="toastContainer" class="toast-container"></div>
+
+    <script src="/static/app.js"></script>
+</body>
+</html>
